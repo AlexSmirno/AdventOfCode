@@ -1,4 +1,5 @@
 ﻿using AdventOfCode.Year2024.Day1;
+using System.Reflection;
 
 namespace AdventOfCode
 {
@@ -22,7 +23,7 @@ namespace AdventOfCode
             path = Directory.GetParent(path).ToString();
             path = Directory.GetParent(path).ToString();
 
-            var myType = typeof(Historian_Hysteria);
+            var myType = GetType();
             var n = myType.Namespace.Replace('.', '\\');
             path = Path.Combine(path, n);
             path = Path.Combine(path, "Input.txt");
