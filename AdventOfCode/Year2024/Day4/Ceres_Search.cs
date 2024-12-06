@@ -1,6 +1,5 @@
-﻿
+﻿using System.Text;
 using System.Text.RegularExpressions;
-using static System.Math;
 
 namespace AdventOfCode.Year2024.Day4
 {
@@ -8,17 +7,44 @@ namespace AdventOfCode.Year2024.Day4
     {
         private List<string> lines;
         //https://www.geeksforgeeks.org/rotate-matrix-by-45-degrees/
+
+        private const string word = "XMAS";
+        private const int len = 4;
+
+        private Tuple<int, int>[] directions = new Tuple<int, int>[8]
+            {
+                new Tuple<int, int> (-1, -1),
+                new Tuple<int, int> (0, -1),
+                new Tuple<int, int> (1, -1),
+
+                new Tuple<int, int> (-1, 0),
+                new Tuple<int, int> (1, 0),
+
+                new Tuple<int, int> (-1, 1),
+                new Tuple<int, int> (0, 1),
+                new Tuple<int, int> (1, 1)
+            };
+
         public override string GetAnswer1()
         {
             ReadInput();
 
-
             int count = 0;
 
-            count += CheckHorisontal(lines);
-            count += CheckVertical(lines);
-            count += CheckDiagonal1(lines);
-            count += CheckDiagonal2(lines);
+            for (int i = 0; i < lines.Count; i++)
+            {
+                for (int j = 0; j < lines[0].Length; j++)
+                {
+                    for (int k = 0; k < directions.Length; k++)
+                    {
+                        if (CheckDirection(j, directions[k].Item1, i, directions[k].Item2))
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+
 
             return count.ToString();
         }
@@ -27,7 +53,115 @@ namespace AdventOfCode.Year2024.Day4
         {
             ReadInput();
 
-            return "";
+            int count = 0;
+
+            for (int i = 1; i < lines.Count - 1; i++)
+            {
+                for (int j = 1; j < lines[0].Length - 1; j++)
+                {
+                    if (CheckMAS(j, i))
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count.ToString();
+        }
+
+
+
+        private bool CheckMAS(int x, int y)
+        {
+            if (x < 1 || y < 1 || x > lines[0].Length - 2 || y > lines.Count - 2)
+            {
+                return false;
+            }
+
+            string str1 = new string(new char[] { lines[y - 1][x - 1], lines[y][x], lines[y + 1][x + 1] });
+            string str2 = new string(new char[] { lines[y - 1][x + 1], lines[y][x], lines[y + 1][x - 1] });
+
+
+            return (str1 == "MAS" || str1 == "SAM") &&
+                (str2 == "MAS" || str2 == "SAM");
+        }
+
+
+        private bool CheckDirection(int x, int dx, int y, int dy)
+        {
+            //bounds for word
+            int bx = x + (len - 1)*dx;
+            int by = y + (len - 1)*dy;
+
+            if (bx < 0 || by < 0 || bx >= lines[0].Length || by >= lines[0].Length)
+            {
+                return false;
+            }
+
+
+            for (int i = 0; i < len; i++)
+            {
+                int nx = x + i*dx;
+                int ny = y + i*dy;
+
+                if (lines[ny][nx] != word[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+
+
+
+
+
+
+        private List<string> RotateMatrix45(List<string> matrix, int n, int m)
+        {
+            int ctr = 0;
+            List<string> newM = new List<string>();
+
+            while (ctr < 2*n-1)
+            {
+                List<char> lst = new List<char>();
+
+                for (int i = 0; i < m; i++)
+                {
+                    for (int j = 0; j < n; j++)
+                    {
+                        if(i + j == ctr)
+                        {
+                            lst.Add(matrix[i][j]);
+                        }
+                    }
+                }
+
+                newM.Add(new string(lst.ToArray()));
+                ctr++;
+            }
+
+            return newM;
+        }
+
+        private List<string> RotateMatrix90(List<string> matrix, int n, int m)
+        {
+            List<string> newM = new List<string>();
+
+            for (int i = 0; i < m; i++)
+            {
+                StringBuilder str = new StringBuilder();
+                for (int j = 0; j < n; j++)
+                {
+                    str.Append(matrix[j][i]);
+                }
+                newM.Add(str.ToString());
+            }
+
+            return newM;
         }
 
 
@@ -122,7 +256,7 @@ namespace AdventOfCode.Year2024.Day4
             for (int i = 0; i < diag_chars.Count; i++)
             {
                 string line = new string(diag_chars[i].ToArray());
-
+                Console.WriteLine(line);
                 count += CheckLine(line);
             }
 
@@ -184,6 +318,7 @@ namespace AdventOfCode.Year2024.Day4
             {
                 string line = new string(diag_chars[i].ToArray());
 
+                Console.WriteLine(line);
                 count += CheckLine(line);
             }
 
