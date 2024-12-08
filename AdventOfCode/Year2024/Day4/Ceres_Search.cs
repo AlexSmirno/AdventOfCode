@@ -338,7 +338,7 @@ namespace AdventOfCode.Year2024.Day4
         protected override void ReadInput()
         {
             lines = new List<string>();
-            string path = GetPathToInput();
+            string path = GetInputPath();
             lines = File.ReadAllText(path).Split("\r\n").ToList();
         }
     }

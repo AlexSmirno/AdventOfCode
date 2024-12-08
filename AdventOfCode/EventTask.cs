@@ -12,7 +12,7 @@ namespace AdventOfCode
 
         protected abstract void ReadInput();
 
-        protected string GetPathToInput()
+        protected string GetInputPath()
         {
             string path = AppDomain.CurrentDomain.BaseDirectory;
 

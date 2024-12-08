@@ -64,7 +64,7 @@ namespace AdventOfCode.Year2024.Day3
 
         protected override void ReadInput()
         {
-            string path = GetPathToInput();
+            string path = GetInputPath();
             data = File.ReadAllText(path);
         }
     }

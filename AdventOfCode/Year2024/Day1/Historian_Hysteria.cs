@@ -53,7 +53,7 @@ namespace AdventOfCode.Year2024.Day1
 
         protected override void ReadInput()
         {
-            string path = GetPathToInput();
+            string path = GetInputPath();
             arr1 = new List<int>();
             arr2 = new List<int>();
             using (StreamReader reader = new StreamReader(path))

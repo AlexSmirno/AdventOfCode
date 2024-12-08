@@ -97,7 +97,7 @@ namespace AdventOfCode.Year2024.Day2
         protected override void ReadInput()
         {
             reports = new List<List<int>>();
-            string path = GetPathToInput();
+            string path = GetInputPath();
 
             using (StreamReader reader = new StreamReader(path))
             {
