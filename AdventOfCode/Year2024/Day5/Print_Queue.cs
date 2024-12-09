@@ -8,6 +8,7 @@ namespace AdventOfCode.Year2024.Day5
     {
         private List<Tuple<int, int>> pairs;
         private List<List<int>> sequences;
+
         public override string GetAnswer1()
         {
             ReadInput();
@@ -20,7 +21,6 @@ namespace AdventOfCode.Year2024.Day5
                 {
                     sum += sequences[i][sequences[i].Count / 2];
                 }
-
             }
 
             return sum.ToString();
@@ -34,13 +34,37 @@ namespace AdventOfCode.Year2024.Day5
 
             for (int i = 0; i < sequences.Count; i++)
             {
-                if (CheckSequence(sequences[i]))
+                if (CheckSequence(sequences[i]) == false)
                 {
+                    FixSequence(sequences[i], pairs);
                     sum += sequences[i][sequences[i].Count / 2];
                 }
             }
 
-            return "";
+            return sum.ToString();
+        }
+
+        private void FixSequence(List<int> nums, List<Tuple<int, int>> rules)
+        {
+            while (CheckSequence(nums) == false)
+            {
+                for (int i = 0; i < rules.Count; i++)
+                {
+                    int a = pairs[i].Item1;
+                    int b = pairs[i].Item2;
+
+                    int a_i = nums.IndexOf(a);
+                    int b_i = nums.IndexOf(b);
+
+                    if (a_i == -1 || b_i == -1) continue;
+
+                    if (a_i > b_i)
+                    {
+                        (nums[a_i], nums[b_i]) = (nums[b_i], nums[a_i]);
+                        break;
+                    }
+                }
+            }
         }
 
 

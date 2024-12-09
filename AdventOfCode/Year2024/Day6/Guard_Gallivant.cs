@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 
 namespace AdventOfCode.Year2024.Day6
 {
@@ -7,17 +8,14 @@ namespace AdventOfCode.Year2024.Day6
         private char[][] field;
         private Guardian guardian;
 
-        private Tuple<int, int>[] directions = new Tuple<int, int>[4]
-            {
-                new Tuple<int, int> (0, -1),
-                new Tuple<int, int> (1, 0),
-                new Tuple<int, int> (0, 1),
-                new Tuple<int, int> (-1,0),
-            };
+        // (x,y,dx,dy)
+        private HashSet<(int, int, int, int)> path;
+
 
         public override string GetAnswer1()
         {
             ReadInput();
+            path = new HashSet<(int, int, int, int)>();
 
             int steps = 0;
 
@@ -28,50 +26,132 @@ namespace AdventOfCode.Year2024.Day6
 
                 stepVal = Step();
             }
-            DrawField();
+
             steps += 1;
             return steps.ToString();
         }
 
+        // Too slow...
+        public override string GetAnswer2()
+        {
+
+            int count = 0;
+
+            for (int i = 0; i < field.Length; i++)
+            {
+                for (int j = 0; j < field[i].Length; j++)
+                {
+                    ReadInput();
+                    path = new HashSet<(int, int, int, int)>();
+
+                    field[i][j] = '-';
+
+                    int stepVal = Step();
+                    while (stepVal >= 0)
+                    {
+                        stepVal = Step();
+                    }
+
+                    if (stepVal == -2)
+                    {
+                        count++;
+                        //Console.ForegroundColor = ConsoleColor.Green;
+                    }
+
+                    //DrawField();
+                    //Console.ForegroundColor = ConsoleColor.White;
+                }
+            }
+
+            //DrawField();
+            return count.ToString();
+        }
+
+
+        //  1 - все норм
+        //  0 - здесь были
+        // -1 - ушел за пределы видимости
+        // -2 - цикл
         private int Step()
         {
-            if (guardian.x + directions[guardian.direction].Item1 < 0 ||
-                guardian.y + directions[guardian.direction].Item2 < 0 ||
-                guardian.x + directions[guardian.direction].Item1 >= field[0].Length ||
-                guardian.y + directions[guardian.direction].Item2 >= field.Length)
+            int state = CheckCell(
+                guardian.x,
+                guardian.y,
+                guardian.dx,
+                guardian.dy
+                );
+
+            if (state == -1)
             {
                 field[guardian.y][guardian.x] = 'X';
                 return -1;
             }
 
-            if (field[guardian.y + directions[guardian.direction].Item2]
-                     [guardian.x + directions[guardian.direction].Item1]
-                      == '#')
+            if (state == 1)
             {
-                guardian.direction++;
-                if (guardian.direction >= 4)
-                {
-                    guardian.direction = 0;
-                }
+                guardian.RotateRight();
+                return Step();
+                
             }
 
-            int isUniqPlace = 1;
-
-            if (field[guardian.y + directions[guardian.direction].Item2]
-                     [guardian.x + directions[guardian.direction].Item1]
-                      == 'X')
+            if (state == -2)
             {
-                isUniqPlace = 0;
+                return -2;
             }
 
             field[guardian.y][guardian.x] = 'X';
 
-            guardian.y += directions[guardian.direction].Item2;
-            guardian.x += directions[guardian.direction].Item1;
+            guardian.y += guardian.dy;
+            guardian.x += guardian.dx;
 
             field[guardian.y][guardian.x] = GetGuardChar(guardian.direction);
 
-            return isUniqPlace;
+
+            if (state == 2)
+            {
+                return 0;
+            }
+
+            path.Add((guardian.x - guardian.dx,
+                guardian.y - guardian.dy,
+                guardian.dx,
+                guardian.dy));
+
+            return 1;
+        }
+
+
+        //  2 - препятствие
+        //  1 - все норм
+        //  0 - здесь были
+        // -1 - ушел за пределы видимости
+        // -2 - цикл
+        private int CheckCell(int x, int y, int dx, int dy)
+        {
+            if (x + dx < 0 ||
+                y + dy < 0 ||
+                x + dx >= field[0].Length ||
+                y + dy >= field.Length)
+            {
+                return -1;
+            }
+
+            if (field[y + dy][x + dx] == '#' || field[y + dy][x + dx] == '-')
+            {
+                return 1;
+            }
+
+            if (path.Contains((x + dx, y + dy, dx, dy)))
+            {
+                return -2;
+            }
+
+            if (field[y + dy][x + dx] == 'X')
+            {
+                return 2;
+            }
+
+            return 0;
         }
 
         private void DrawField()
@@ -86,13 +166,6 @@ namespace AdventOfCode.Year2024.Day6
                 Console.WriteLine();
             }
         }
-
-        public override string GetAnswer2()
-        {
-
-            return "";
-        }
-
         protected override void ReadInput()
         {
             string path = GetInputPath();
@@ -171,9 +244,47 @@ namespace AdventOfCode.Year2024.Day6
 
         private class Guardian
         {
-            public int direction;
+            private int d;
+            public int direction
+            {
+                get { return d; }
+                set 
+                {
+                    d = value;
+
+                    if (direction >= 4) direction = 0;
+
+                    dx = directions[d].Item1;
+                    dy = directions[d].Item2;
+                }
+            }
             public int x;
             public int y;
+
+            public int dx { get; private set; }
+            public int dy { get; private set; }
+
+            public void RotateRight()
+            {
+                direction++;
+            }
+            public int GetDirectionX()
+            {
+                return directions[direction].Item1;
+            }
+
+            public int GetDirectionY()
+            {
+                return directions[direction].Item2;
+            }
+
+            private Tuple<int, int>[] directions = new Tuple<int, int>[4]
+                {
+                new Tuple<int, int> (0, -1),
+                new Tuple<int, int> (1, 0),
+                new Tuple<int, int> (0, 1),
+                new Tuple<int, int> (-1,0),
+                };
         }
     }
 
