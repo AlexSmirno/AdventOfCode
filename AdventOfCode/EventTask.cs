@@ -4,13 +4,13 @@ namespace AdventOfCode
 {
     internal abstract class EventTask
     {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-
         public abstract string GetAnswer1();
         public abstract string GetAnswer2();
 
         protected abstract void ReadInput();
+
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
         protected string GetInputPath()
         {
