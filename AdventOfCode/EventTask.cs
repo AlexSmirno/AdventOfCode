@@ -9,9 +9,6 @@ namespace AdventOfCode
 
         protected abstract void ReadInput();
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-
         protected string GetInputPath()
         {
             string path = AppDomain.CurrentDomain.BaseDirectory;
