@@ -13,14 +13,13 @@ namespace AdventOfCode.Year2024.Day11
         {
             ReadInput();
 
+            int blinks = 25;
             long count = 0;
-
-            for (int i = 0; i < 25; i++)
+            
+            for (int i = 0; i < stones.Count; i++)
             {
-                Blink(stones);
+                count += Blink(stones[i], 0, blinks);
             }
-
-            count = stones.Count;
 
             return count.ToString();
         }
@@ -29,59 +28,63 @@ namespace AdventOfCode.Year2024.Day11
         {
             ReadInput();
 
-            int winks = 50;
+            var stones_dic = new Dictionary<long, long>();
 
-            var timer2 = System.Diagnostics.Stopwatch.StartNew();
-            long count2 = 0;
             for (int i = 0; i < stones.Count; i++)
             {
-                count2 += Blink(stones[i], 0, winks);
+                stones_dic.Add(stones[i], 1);
             }
-            timer2.Stop();
-            Console.WriteLine(timer2.ElapsedTicks / 10000f);
+
+            int blinks = 75;
 
 
-            /*
-            var timer = System.Diagnostics.Stopwatch.StartNew();
-            for (int i = 0; i < winks; i++)
+            for (int i = 0; i < blinks; i++)
             {
-                Blink(stones);
-            }
-            long count1 = stones.Count;
-            timer.Stop();
-            Console.WriteLine(timer.ElapsedTicks / 10000f);
-            */
+                var new_dic = new Dictionary<long, long>();
 
-            return count2.ToString();
+                foreach (var stone in stones_dic)
+                {
+                    var list = Blink(stone.Key);
+
+                    for (int j = 0; j < list.Count; j++)
+                    {
+                        if (new_dic.ContainsKey(list[j]) == false)
+                        {
+                            new_dic.Add(list[j], 0);
+                        }
+
+                        new_dic[list[j]] += stone.Value;
+                    }
+                }
+
+                stones_dic = new_dic;
+            }
+
+            return stones_dic.Sum(s => s.Value).ToString();
         }
 
 
-        private void Blink(List<long> list)
+        private List<long> Blink(long x)
         {
-            int list_begin_length = list.Count;
-            for (int i = 0; i < list_begin_length; i++)
+            if (x == 0)
             {
-                if (list[i] == 0)
-                {
-                    list[i] = 1;
-                    continue;
-                }
-
-                long length = (long)Math.Floor(Math.Log10(list[i])) + 1;
-                if ((length & 1) == 0)
-                {
-                    long num = list[i];
-                    length = (long)(Math.Pow(10, length / 2));
-
-                    list[i] = num / length;
-                    list.Add(num % length);
-
-                    continue;
-                }
-
-
-                list[i] = list[i] * 2024;
+                x = 1;
+                return new List<long>() { x };
             }
+
+            long length = (long)Math.Floor(Math.Log10(x)) + 1;
+            if ((length & 1) == 0)
+            {
+                long num = x;
+                length = (long)(Math.Pow(10, length / 2));
+
+                x = num / length;
+                long x2 = num % length;
+                return new List<long>() { x, x2 };
+            }
+
+            x = x * 2024;
+            return new List<long>() { x };
         }
 
 
@@ -117,7 +120,7 @@ namespace AdventOfCode.Year2024.Day11
         {
             string path = GetInputPath();
 
-            stones = new List<long>(int.MaxValue-56);
+            stones = new List<long>();
 
             using (StreamReader sr = new StreamReader(path))
             {
